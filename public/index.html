@@ -8,18 +8,19 @@
 </head>
 <body>
 
-    <!-- Login View -->
-    <div id="login-view">
+    <!-- Landing View (Initially Hidden) -->
+    <div id="landing-view" class="hidden">
         <div class="login-card">
             <h2>Welcome to mooncafe.space</h2>
-            <p>Please choose a display name to enter the chat.</p>
-            <input type="text" id="username-input" placeholder="Your display name" autofocus>
-            <button id="login-button">Enter Chat</button>
+            <p>No accounts, no history. Just strangers chatting.</p>
+            <input type="text" id="nickname-input" placeholder="Nickname" required>
+            <input type="text" id="flair-input" placeholder="Flair (e.g. #nightowl)" maxlength="25">
+            <button id="enter-button">Enter the café</button>
         </div>
     </div>
 
-    <!-- Main Application Window (Initially Hidden) -->
-    <div class="main-window hidden" id="chat-view">
+    <!-- Main Application Window -->
+    <div class="main-window" id="chat-view">
         <!-- Title Bar -->
         <div class="title-bar">
             <div class="app-name">
@@ -37,10 +38,10 @@
         <!-- Menu Bar -->
         <div class="menu-bar">
             <div class="menu-item">File</div>
-            <div class="menu-item">Edit</div>
+            <div class="menu-item" id="change-nickname-btn">Change Nickname</div>
             <div class="menu-item">Friend</div>
             <div class="menu-item">Format</div>
-            <div class="menu-item">Links</div>
+            <div class="menu-item" id="create-circle-btn">Create/Share Circle</div>
             <div class="menu-item">Extra Toys</div>
             <div class="menu-item">Help</div>
         </div>
@@ -156,6 +157,23 @@
             </div>
             <div class="modal-content" id="emote-grid">
                 <!-- Emotes will be populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Circle Share Modal -->
+    <div class="modal-overlay" id="share-circle-modal">
+        <div class="modal">
+            <div class="modal-titlebar">
+                <span>Share this Circle</span>
+                <button class="modal-close-btn" data-target-modal="share-circle-modal">&times;</button>
+            </div>
+            <div class="modal-content">
+                <p>Invite others to this circle with this link:</p>
+                <input type="text" id="share-link-input" readonly>
+                <button id="copy-link-btn">Copy Link</button>
+                <hr>
+                <button id="new-circle-btn">Create a New Circle</button>
             </div>
         </div>
     </div>

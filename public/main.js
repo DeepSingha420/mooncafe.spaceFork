@@ -1,10 +1,11 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM ELEMENTS ---
-    const loginView = document.getElementById('login-view');
+    const landingView = document.getElementById('landing-view');
     const chatView = document.getElementById('chat-view');
-    const usernameInput = document.getElementById('username-input');
-    const loginButton = document.getElementById('login-button');
+    const nicknameInput = document.getElementById('nickname-input');
+    const flairInput = document.getElementById('flair-input');
+    const enterButton = document.getElementById('enter-button');
 
     const messageContainer = document.getElementById('message-container');
     const messageInput = document.getElementById('message-input');
@@ -19,7 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const modals = document.querySelectorAll('.modal-overlay');
     const openJoinModalBtn = document.getElementById('join-room-btn-open');
     const openEmoteModalBtn = document.getElementById('emote-picker-btn');
+    const shareCircleModal = document.getElementById('share-circle-modal');
     const closeButtons = document.querySelectorAll('.modal-close-btn');
+
+    // Circle Elements
+    const createCircleBtn = document.getElementById('create-circle-btn');
+    const shareLinkInput = document.getElementById('share-link-input');
+    const copyLinkBtn = document.getElementById('copy-link-btn');
+    const newCircleBtn = document.getElementById('new-circle-btn');
+
+    // Nickname change
+    const changeNicknameBtn = document.getElementById('change-nickname-btn');
 
     // Context Menu
     const userContextMenu = document.getElementById('user-context-menu');
@@ -31,7 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- STATE ---
     let isScrollOn = true;
-    let username = '';
+    let identity = null;
+    let circleId = 'main-cafe';
     let currentUserStyle = {
         fontFamily: 'var(--font-ui)',
         fontSize: '1em',
@@ -40,27 +52,48 @@ document.addEventListener('DOMContentLoaded', () => {
         textDecoration: 'none'
     };
 
-    // --- LOCAL STORAGE ---
-    const loadState = () => {
-        const savedScroll = localStorage.getItem('mooncafe_scrollOn');
-        isScrollOn = savedScroll !== null ? JSON.parse(savedScroll) : true;
-        scrollOnCheckbox.checked = isScrollOn;
+    // --- IDENTITY & LOCAL STORAGE ---
+    const getIdentity = () => {
+        try {
+            const storedIdentity = localStorage.getItem('mooncafeIdentity');
+            if (storedIdentity) {
+                return JSON.parse(storedIdentity);
+            }
+        } catch (e) {
+            console.error("Could not parse identity from localStorage", e);
+            localStorage.removeItem('mooncafeIdentity');
+        }
+        return null;
+    };
 
-        const savedFont = localStorage.getItem('mooncafe_fontFamily');
-        if (savedFont) {
-            currentUserStyle.fontFamily = savedFont;
-            document.getElementById('font-family-select').value = savedFont;
-            messageInput.style.fontFamily = savedFont;
+    const saveIdentity = (newIdentity) => {
+        try {
+            localStorage.setItem('mooncafeIdentity', JSON.stringify(newIdentity));
+            identity = newIdentity;
+        } catch (e) {
+            console.error("Could not save identity to localStorage", e);
         }
     };
+    
+    const clearIdentity = () => {
+        localStorage.removeItem('mooncafeIdentity');
+        identity = null;
+        window.location.reload();
+    };
 
-    const saveState = () => {
-        localStorage.setItem('mooncafe_scrollOn', JSON.stringify(isScrollOn));
-        localStorage.setItem('mooncafe_fontFamily', currentUserStyle.fontFamily);
+    const generateClientToken = () => {
+        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
     };
     
-    // --- FUNCTIONS ---
+    const getCircleIdFromUrl = () => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('circle') || 'main-cafe';
+    };
 
+
+    // --- UI FUNCTIONS ---
     const updateUserTime = () => {
         const now = new Date();
         statusTime.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -71,11 +104,13 @@ document.addEventListener('DOMContentLoaded', () => {
         users.forEach(user => {
             const userEl = document.createElement('div');
             userEl.className = 'user-item';
-            // NOTE: 'status' and 'avatar' would come from the server user object
+            const flairEl = user.flair ? `<div class="user-flair">${user.flair}</div>` : '';
             userEl.innerHTML = `
-                <div class="status"></div>
                 <div class="avatar">${user.avatar || '👤'}</div>
-                <span>${user.username}</span>
+                <div class="user-info">
+                    <span>${user.username}</span>
+                    ${flairEl}
+                </div>
             `;
             userList.appendChild(userEl);
         });
@@ -90,12 +125,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             msgRow.className = 'message-row';
             const s = msg.style || {};
+            const flairEl = msg.flair ? `<div class="message-flair">${msg.flair}</div>` : '';
             const textStyle = `font-family: ${s.fontFamily || 'var(--font-ui)'}; color: ${s.color || '#333'}; font-weight: ${s.fontWeight || 'normal'}; font-style: ${s.fontStyle || 'normal'}; text-decoration: ${s.textDecoration || 'none'}; font-size: ${s.fontSize || '1em'};`;
 
             msgRow.innerHTML = `
                 <div class="avatar" style="background-color: ${generateAvatarColor(msg.username)}">${msg.avatar || '👤'}</div>
                 <div class="message-content">
                     <span class="message-username" style="color: ${s.color || '#333'}" data-username="${msg.username}">${msg.username}</span>
+                    ${flairEl}
                     <span class="message-text" style="${textStyle}">${msg.text}</span>
                 </div>
             `;
@@ -106,9 +143,10 @@ document.addEventListener('DOMContentLoaded', () => {
             messageContainer.scrollTop = messageContainer.scrollHeight;
         }
     };
-    
+
     const generateAvatarColor = (username) => {
         let hash = 0;
+        if (!username) return '#ccc';
         for (let i = 0; i < username.length; i++) {
             hash = username.charCodeAt(i) + ((hash << 5) - hash);
         }
@@ -118,35 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
             color += ('00' + value.toString(16)).substr(-2);
         }
         return color;
-    }
-
-    const handleSendMessage = () => {
-        const text = messageInput.value.trim();
-        if (text) {
-            const message = {
-                text: text,
-                style: { ...currentUserStyle }
-            };
-            
-            // INTEGRATION: Emit message to server
-            socket.emit('chatMessage', message);
-
-            messageInput.value = '';
-            messageInput.focus();
-        }
-    };
-
-    const handleLogin = () => {
-        const name = usernameInput.value.trim();
-        if (name) {
-            username = name;
-            // INTEGRATION: Emit new user to server
-            socket.emit('newUser', { username: name, avatar: '☕️' }); // Example avatar
-
-            loginView.classList.add('hidden');
-            chatView.classList.remove('hidden');
-            messageInput.focus();
-        }
     };
     
     const applyInputStyles = () => {
@@ -163,7 +172,36 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(toggle);
     };
 
-    // --- EVENT LISTENERS ---
+    // --- EVENT HANDLERS ---
+    const handleSendMessage = () => {
+        const text = messageInput.value.trim();
+        if (text && identity) {
+            const message = {
+                text: text,
+                style: { ...currentUserStyle }
+            };
+            socket.emit('chatMessage', message);
+            messageInput.value = '';
+            messageInput.focus();
+        }
+    };
+
+    const handleEnterChat = () => {
+        const nickname = nicknameInput.value.trim();
+        if (nickname) {
+            const newIdentity = {
+                nickname: nickname,
+                flair: flairInput.value.trim(),
+                clientToken: generateClientToken()
+            };
+            saveIdentity(newIdentity);
+            connectToChat();
+        } else {
+            alert('Please enter a nickname.');
+        }
+    };
+
+    // --- MODAL & UI LISTENERS ---
     sendButton.addEventListener('click', handleSendMessage);
     messageInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -172,21 +210,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    loginButton.addEventListener('click', handleLogin);
-    usernameInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') handleLogin();
+    enterButton.addEventListener('click', handleEnterChat);
+    nicknameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleEnterChat();
     });
+    flairInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleEnterChat();
+    });
+
+    changeNicknameBtn.addEventListener('click', clearIdentity);
 
     scrollOnCheckbox.addEventListener('change', (e) => {
         isScrollOn = e.target.checked;
-        saveState();
+        localStorage.setItem('mooncafe_scrollOn', JSON.stringify(isScrollOn));
     });
     
     // Font style controls
     document.getElementById('font-family-select').addEventListener('change', (e) => {
         currentUserStyle.fontFamily = e.target.value;
         messageInput.style.fontFamily = e.target.value;
-        saveState();
     });
     document.getElementById('font-size-select').addEventListener('change', (e) => {
         currentUserStyle.fontSize = e.target.value;
@@ -209,16 +251,30 @@ document.addEventListener('DOMContentLoaded', () => {
         applyInputStyles();
     });
 
-    // Modals
     const showModal = (id) => document.getElementById(id).style.display = 'flex';
     const hideModal = (id) => document.getElementById(id).style.display = 'none';
 
     openJoinModalBtn.addEventListener('click', () => showModal('join-room-modal'));
     openEmoteModalBtn.addEventListener('click', () => showModal('emote-picker-modal'));
 
+    createCircleBtn.addEventListener('click', () => {
+        shareLinkInput.value = window.location.href;
+        showModal('share-circle-modal');
+    });
+    copyLinkBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(shareLinkInput.value).then(() => {
+            copyLinkBtn.textContent = 'Copied!';
+            setTimeout(() => { copyLinkBtn.textContent = 'Copy Link'; }, 2000);
+        });
+    });
+    newCircleBtn.addEventListener('click', () => {
+        const newCircle = 'circle-' + Math.random().toString(36).substr(2, 9);
+        window.location.search = `?circle=${newCircle}`;
+    });
+
     closeButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const modalId = btn.getAttribute('data-target-modal');
+        btn.addEventListener('click', (e) => {
+            const modalId = e.currentTarget.getAttribute('data-target-modal');
             hideModal(modalId);
         });
     });
@@ -236,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Emote Picker
     const emotes = ['😊', '😂', '😍', '🤔', '😢', '😎', '👍', '❤️', '🎉', '☕', '✨', '💾'];
     const emoteGrid = document.getElementById('emote-grid');
-emotes.forEach(emote => {
+    emotes.forEach(emote => {
         const emoteEl = document.createElement('div');
         emoteEl.className = 'emote-item';
         emoteEl.textContent = emote;
@@ -248,37 +304,37 @@ emotes.forEach(emote => {
         emoteGrid.appendChild(emoteEl);
     });
 
-    // Context Menu
-    messageContainer.addEventListener('click', (e) => {
-        const usernameEl = e.target.closest('.message-username');
-        if (usernameEl) {
-            e.preventDefault();
-            userContextMenu.style.display = 'block';
-            userContextMenu.style.top = `${e.pageY}px`;
-            userContextMenu.style.left = `${e.pageX}px`;
-            userContextMenu.setAttribute('data-target-user', usernameEl.dataset.username);
+    // --- SOCKET.IO ---
+    const socket = io({ autoConnect: false });
+
+    const connectToChat = () => {
+        if (!identity) return;
+        
+        landingView.classList.add('hidden');
+        chatView.classList.remove('hidden');
+
+        if (!socket.connected) {
+            socket.connect();
         }
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.message-username')) {
-            userContextMenu.style.display = 'none';
-        }
-    });
-
-
-    // --- SOCKET.IO INTEGRATION ---
-    const socket = io();
+        
+        const payload = {
+            ...identity,
+            circle: circleId
+        };
+        socket.emit('newUser', payload);
+    };
 
     socket.on('connect', () => {
         console.log('Connected to server!');
-        // Show login view on connect
-        loginView.classList.remove('hidden');
-        chatView.classList.add('hidden');
     });
 
     socket.on('userList', (userArray) => {
         updateUserList(userArray);
+    });
+    
+    socket.on('messageHistory', (messages) => {
+        messageContainer.innerHTML = ''; // Clear previous messages
+        messages.forEach(msg => appendMessage(msg));
     });
 
     socket.on('message', (messageData) => {
@@ -288,13 +344,27 @@ emotes.forEach(emote => {
     socket.on('systemMessage', (text) => {
         appendMessage({ system: true, text: text });
     });
+    
+    socket.on('nicknameError', (error) => {
+        alert(error.message);
+        clearIdentity();
+    });
 
 
     // --- INITIALIZATION ---
     const init = () => {
-        loadState();
+        circleId = getCircleIdFromUrl();
+        identity = getIdentity();
+
+        if (identity) {
+            connectToChat();
+        } else {
+            landingView.classList.remove('hidden');
+            chatView.classList.add('hidden');
+        }
+
         updateUserTime();
-        setInterval(updateUserTime, 60000); // Update every minute
+        setInterval(updateUserTime, 60000);
         createResponsiveToggle();
     };
 
