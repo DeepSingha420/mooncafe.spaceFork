@@ -1,6 +1,6 @@
 # mooncafé.space
 
-![mooncafé.space Screenshot](https://raw.githubusercontent.com/your-username/mooncafe.space/main/screenshot.png) <!-- Replace with a real screenshot URL -->
+![mooncafé.space Screenshot](https://raw.githubusercontent.com/ayahack89/mooncafe.space/main/chat-room-previews/chat-room-pic-one.jpg)
 
 **mooncafé.space** is a nostalgic, ephemeral chat application inspired by the simple, anonymous chatrooms of the early 2000s. No accounts, no profiles, no history. Just a quiet corner of the web for transient conversations.
 
@@ -8,13 +8,13 @@
 
 ## The Story
 
-I built mooncafé.space because I missed the simplicity of the early internet—those small, no-pressure chatrooms from the 2000s where anyone could drop in, choose a nickname, talk for a while, and disappear again without leaving a trail behind. No accounts, no profiles, no algorithms watching over you. Just a quiet corner of the web where people could speak freely.
+I built mooncafé.space because I missed the simplicity of the early internet those small, no-pressure chatrooms from the 2000s where anyone could drop in, choose a nickname, talk for a while, and disappear again without leaving a trail behind. No accounts, no profiles, no algorithms watching over you. Just a quiet corner of the web where people could speak freely.
 
 This project is a love letter to that era. It's intentionally lightweight, with a focus on ephemerality and user privacy.
 
 ## Features
 
-*   **Anonymous & Ephemeral:** No accounts required. Chat history is not stored on the server. All data is held in memory and is gone forever once the chat "circle" is empty.
+*   **Anonymous & Ephemeral:** No accounts required. Chat history is not stored on the server. All data is held in memory and is gone forever once you leave.
 *   **Circles (Chat Rooms):** Users can create their own private "circles" and share a link to chat with friends.
 *   **Real-Time Communication:** Live messaging powered by WebSockets.
 *   **Rich Text Formatting:** Style your messages with bold, italics, underline, and different fonts.
@@ -29,6 +29,7 @@ This project is a love letter to that era. It's intentionally lightweight, with 
 *   **Backend:** Node.js, Express.js, Socket.IO
 *   **Frontend:** Vanilla JavaScript (ES6+), HTML5, CSS3
 *   **No Database:** All chat data is stored in-memory on the server.
+*   **For Hosting:** Render
 
 ## Getting Started
 
@@ -43,7 +44,7 @@ You can run mooncafé.space on your local machine. This is the recommended appro
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/mooncafe.space.git
+    git clone https://github.com/ayahack89/mooncafe.space.git
     cd mooncafe.space
     ```
 

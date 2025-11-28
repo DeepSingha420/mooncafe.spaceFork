@@ -10,8 +10,8 @@ const io = socketIo(server);
 const PORT = process.env.PORT || 3000;
 const MAX_MESSAGES_PER_CIRCLE = 50;
 
-// Serve static files from the 'public' directory
-app.use(express.static('public'));
+// Serve static files from the 'public' directory (absolute path for Render)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Add a catch-all route to serve index.html
 app.get('/*', (req, res) => {

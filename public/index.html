@@ -4,7 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mooncafé.space</title>
+    <title>mooncafé.space - A classic, minimal & ephemeral chat-room</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="A small, old-school café on the internet where conversations come and go like passing clouds. Join mooncafé.space for anonymous, ephemeral, and private chat without accounts or history.">
+    <meta name="keywords" content="chat-room, anonymous chat, ephemeral chat, private chat, mooncafé, online chat, no-signup chat, retro chat">
+    <link rel="canonical" href="https://www.mooncafe.site">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.mooncafe.site/">
+    <meta property="og:title" content="mooncafé.space - A classic, minimal & ephemeral chat-room">
+    <meta property="og:description" content="A small, old-school café on the internet where conversations come and go like passing clouds.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/ayahack89/mooncafe.space/main/chat-room-previews/chat-room-pic-one.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.mooncafe.site/">
+    <meta property="twitter:title" content="mooncafé.space - A classic, minimal & ephemeral chat-room">
+    <meta property="twitter:description" content="A small, old-school café on the internet where conversations come and go like passing clouds.">
+    <meta property="twitter:image" content="https://raw.githubusercontent.com/ayahack89/mooncafe.space/main/chat-room-previews/chat-room-pic-one.jpg">
+
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet" />
     <link rel="stylesheet" href="style.css">
 </head>
@@ -19,7 +39,7 @@
      <div id="landing-view">
         <div class="login-card">
             <h2>Welcome to mooncafé.space</h2>
-            <p>No accounts, no history. Just strangers chatting.</p>
+            <p><q>A small, old-school café on the internet where conversations come and go like passing clouds.</q></p>
             
             <div class="field-label">Nickname</div>
             <input type="text" id="nickname-input" placeholder="Enter your nickname" required>
@@ -28,6 +48,7 @@
             <input type="text" id="flair-input" placeholder="Optional flair" maxlength="25">
             
             <button id="enter-button">Enter the café</button>
+            <p style="margin-top: 10px; font-size: 1px; color: #024cba;">No accounts, no history. Just strangers chatting.</p>
         </div>
     </div>
 
@@ -49,7 +70,7 @@
             <div class="menu-item" id="create-circle-btn">Create/Share Circle</div>
             <div class="menu-item" id="about-btn">mooncafé.space/About</div>
             <div class="menu-item" id="collaborate-btn">Collaborate</div>
-            <a href="https://github.com/your-repo/mooncafe.space" target="_blank" class="menu-item github-link">
+            <a href="https://github.com/ayahack89/mooncafe.space" target="_blank" class="menu-item github-link">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
                     <path fill-rule="evenodd"
                         d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
@@ -207,7 +228,7 @@
                 <button class="modal-close-btn" data-target-modal="about-modal">&times;</button>
             </div>
             <div class="modal-content">
-                <h3>The Story behind mooncafé.space</h3>
+                <h2><strong>The Story behind mooncafé.space</strong></h2>
                 <p>
                     I built mooncafé.space because I missed the simplicity of the early internet those small,
                     no-pressure chatrooms from the 2000s where anyone could drop in, choose a nickname, talk for a
@@ -218,7 +239,7 @@
                     From a technical side, I wanted to keep things as lightweight and open as possible.
                     There is no database, no message history, and nothing stored permanently. Everything you see
                     here exists only in memory while you're connected. Once you leave, it's gone. This public
-                    version runs on Vercel, so standard access logs may still exist on their end, but the chat
+                    version runs on Render, so standard access logs may still exist on their end, but the chat
                     itself doesn't keep anything. If someone needs stronger privacy or even Tor-level anonymity,
                     I've made the entire source code available so anyone can run it on their own machine.
                 </p>
