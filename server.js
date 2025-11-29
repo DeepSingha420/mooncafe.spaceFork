@@ -15,8 +15,8 @@ const Filter = require('bad-words');
 const filter = new Filter(); 
 
 // Optional: specific words you want to whitelist or blacklist
-// filter.addWords('somebadword'); 
-// filter.removeWords('hell');
+filter.addWords('kill'); 
+filter.removeWords('hell');
 
 // Security middleware
 app.use(helmet());
