@@ -48,8 +48,9 @@ io.on('connection', (socket) => {
         const { nickname: rawNickname, flair: rawFlair, clientToken, circle: circleId } = data;
 
         // Sanitize inputs (XSS)
+        // CHANGE 1: 'let' instead of 'const' so we can modify them
         let nickname = xss(rawNickname).slice(0, 30);
-        const flair = xss(rawFlair).slice(0, 50);
+        let flair = xss(rawFlair).slice(0, 50); 
 
         if (!nickname) {
             socket.emit('nicknameError', { message: 'Nickname cannot be empty.' });
@@ -57,11 +58,16 @@ io.on('connection', (socket) => {
         }
 
         // --- PROFANITY CHECK 1: NICKNAMES ---
-        // If nickname contains bad words, clean it automatically
         if (filter.isProfane(nickname)) {
             nickname = filter.clean(nickname);
         }
-        // ------------------------------------
+
+        // --- PROFANITY CHECK 2: FLAIR (NEW) ---
+        // We check if flair exists first to avoid errors on empty strings
+        if (flair && filter.isProfane(flair)) {
+            flair = filter.clean(flair);
+        }
+        // ---------------------------------------
         
         // Ensure circle exists
         if (!circles[circleId]) {
@@ -121,8 +127,7 @@ io.on('connection', (socket) => {
                 return; // Ignore empty messages
             }
 
-            // --- PROFANITY CHECK 2: CHAT MESSAGES ---
-            // Clean the message before storing or sending
+            // --- PROFANITY CHECK 3: CHAT MESSAGES ---
             const cleanText = filter.clean(sanitizedText);
             // ----------------------------------------
 
@@ -131,7 +136,7 @@ io.on('connection', (socket) => {
                 username: user.nickname,
                 flair: user.flair,
                 avatar: user.avatar,
-                text: cleanText, // <--- Use cleanText instead of sanitizedText
+                text: cleanText, 
                 style: messageData.style, 
                 timestamp: new Date(),
                 replyTo: repliedToMessage ? {
